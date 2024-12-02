@@ -235,6 +235,11 @@ public class Game{
 			playerDrawCard();
 		}		
 		UI.updatePlayerHand(playerCards);				
+
+		if(playerRank == 21 || (playerRank == 11 && playerHasAce))
+		{
+			blackjack();
+		}
 	}
 
 	//when the hit button is clicked
