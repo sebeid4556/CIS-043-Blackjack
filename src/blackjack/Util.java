@@ -51,11 +51,5 @@ public class Util {
 	{
 		if(str.matches("[0-9]+")) return true;
 		return false;
-		/*try {
-			Double.parseDouble(str);
-			return true;
-		}catch(NumberFormatException e) {
-			return false;
-		}*/
 	}
 }
