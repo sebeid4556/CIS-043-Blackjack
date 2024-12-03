@@ -26,6 +26,7 @@ public class UserInterface extends JFrame implements ActionListener{
 	public static final int STATE_INSURANCE_OR_SURRENDER = 1;
 	public static final int STATE_PLAY = 2;
 	public static final int STATE_RESULT = 3;
+	public static final int STATE_DEAL_AGAIN = 4;
 
 	//========================================================================
 	//Objects
@@ -141,6 +142,18 @@ public class UserInterface extends JFrame implements ActionListener{
 	{		
 		HUD.fldBid.setEditable(flag);
 	}
+	
+	//get the game mode from the drop down menu
+	public int getGameMode()
+	{
+		return HUD.getModeComboBoxValue();
+	}
+	
+	//enable or disable the drop down menu
+	public void setModeComboBoxState(boolean flag)
+	{
+		HUD.cmbMode.setEnabled(flag);
+	}
 
 	//return the amount entered into text field
 	public int getBidAmount()
@@ -201,6 +214,13 @@ public class UserInterface extends JFrame implements ActionListener{
 				setPlayState(true);
 				action_bar.button_restart.setEnabled(false);
 				break;
+			case STATE_DEAL_AGAIN:
+				action_bar.button_deal.setEnabled(true);
+				setInsuranceAndSurrenderState(false);				
+				setPlayState(false);
+				action_bar.button_restart.setEnabled(false);
+				action_bar.button_ready.setEnabled(true);	//enable the ready button for deal again
+				break;
 			case STATE_RESULT:
 				action_bar.button_deal.setEnabled(false);
 				setInsuranceAndSurrenderState(false);
@@ -220,8 +240,8 @@ public class UserInterface extends JFrame implements ActionListener{
 	{
 		Object source = e.getSource();		
 		if(source == action_bar.button_deal)
-		{
-			gameObj.onDeal();
+		{			
+			gameObj.onDeal();			
 		}
 		else if(source == action_bar.button_hit)
 		{

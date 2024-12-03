@@ -28,6 +28,12 @@ public class Game{
 	public static final int GAME_STATE_NOWINNER = 3;
 	public static final int GAME_STATE_BLACKJACK = 4;
 
+	//game modes
+	public static final int GAME_MODE_NORMAL = 0;
+	//(J, Q, K) are (11, 12, 13) respectively
+	//and you have the choice to only draw one card
+	public static final int GAME_MODE_SPECIAL = 1;
+
 	//========================================================================
 	//Game-Specific variables
 	//========================================================================
@@ -37,16 +43,18 @@ public class Game{
 	final ArrayList<Card> tableCards = new ArrayList<>(); // cards table has
 	final ArrayList<Card> playerCards = new ArrayList<>(); // cards player has
 
-	int balance;	//if this goes to 0 then its game over
-	int bid; // current bid
-	int tableEarning; // total earning for table
-	int playerEarning; // total earning for player
-	boolean purchasedInsurance; // did player earned insurance?
+	private int balance;	//if this goes to 0 then its game over
+	private int bid; // current bid
+	private boolean purchasedInsurance; // did player earned insurance?
 
-	int tableRank; // table's total rank
-	int playerRank; // player's total rank
-	boolean tableHasAce; // does the table have an ace
-	boolean playerHasAce; // does the player have an ace
+	private int tableRank; // table's total rank
+	private int playerRank; // player's total rank
+	private boolean tableHasAce; // does the table have an ace
+	private boolean playerHasAce; // does the player have an ace
+
+	private boolean playerHasDrawn;	//for special mode: has the player drawn two cards
+
+	private int gameMode;
 
 	public Game()
 	{
@@ -66,13 +74,14 @@ public class Game{
 
 	//start new round
 	private void reset()
-	{	
+	{			
 		// game has not started -> no insurance, no ace dealt, ranks are 0
 		purchasedInsurance = false;
 		tableHasAce = playerHasAce = false;
 		playerRank = tableRank = 0;
+		playerHasDrawn = false;
 
-		bid = INITIAL_BID;
+		bid = INITIAL_BID;	//set back to default every round
 
 		// return player and table's card return deck
 		returnCardDeck.addCards(playerCards);
@@ -81,7 +90,8 @@ public class Game{
 		tableCards.clear();
 		servingCardDeck.moveCards(returnCardDeck);	//move returned cards back to serving deck and shuffle
 
-		UI.setBidFieldState(true);
+		UI.setModeComboBoxState(true);	//enable drop down
+		UI.setBidFieldState(true);	//enable bid field
 		UI.setActionBarState(UserInterface.STATE_DEAL);
 		UI.resetTable();
 		UI.updateHUD(balance, bid);
@@ -210,32 +220,61 @@ public class Game{
 	//when the deal button is clicked
 	public void onDeal()
 	{
-		if(!UI.validateBidAmount(balance)) return;
-		bid = UI.getBidAmount();
+		gameMode = UI.getGameMode();
 
-		UI.setBidFieldState(false);
-		UI.setActionBarState(UserInterface.STATE_INSURANCE_OR_SURRENDER);		
-
-		UI.resetTable();
-
-
-		//table draws one card
-		final Card tableCard = servingCardDeck.take();
-		if(tableCard.getRank().equals(Rank.Ace))
+		if(!playerHasDrawn)	//only do this the first time
 		{
-			tableHasAce = true;
-		}
-		tableCards.add(tableCard);
-		tableRank = Util.calculateHandRank(tableCards);
-		UI.updateTableHand(tableCards);		
+			if(!UI.validateBidAmount(balance)) return;
+			bid = UI.getBidAmount();
 
-		//player draws two cards
-		for(int i = 0;i < 2;i++)
+			UI.setModeComboBoxState(false);	//disable drop down
+			UI.setBidFieldState(false);	//disable bid field
+			UI.setActionBarState(UserInterface.STATE_INSURANCE_OR_SURRENDER);		
+
+			UI.resetTable();
+
+			//table draws one card
+			final Card tableCard = servingCardDeck.take();
+			if(tableCard.getRank().equals(Rank.Ace))
+			{
+				tableHasAce = true;
+			}
+			tableCards.add(tableCard);
+			tableRank = Util.calculateHandRank(tableCards);
+			UI.updateTableHand(tableCards);
+		}	
+
+		if(gameMode == GAME_MODE_SPECIAL)	//only draw one card at a time if game mode is SPECIAL
 		{
 			playerDrawCard();
-		}		
-		UI.updatePlayerHand(playerCards);				
+			UI.updatePlayerHand(playerCards);
 
+			if(!playerHasDrawn)	//if this is the first time
+			{
+				UI.setActionBarState(UserInterface.STATE_DEAL_AGAIN);	//click deal one more time to draw another card				
+				Util.delay(250);				
+			}
+			else	//second time
+			{
+				bid *= 2;	//double bid
+				UI.updateHUD(balance, bid);
+				UI.setActionBarState(UserInterface.STATE_INSURANCE_OR_SURRENDER);				
+			}
+
+			playerHasDrawn = true;			
+
+		}
+		else	//NORMAL MODE
+		{
+			//player draws two cards
+			for(int i = 0;i < 2;i++)
+			{
+				playerDrawCard();
+			}		
+			UI.updatePlayerHand(playerCards);
+		}
+
+		//check score for blackjack
 		if(playerRank == 21 || (playerRank == 11 && playerHasAce))
 		{
 			blackjack();

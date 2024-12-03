@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 
 //utility class for commonly used operations
 public class Util {
-	
+
 	//this method will always count an ace as 1, so the responsibility to account for it being an 11 
 	//falls to the game logic
 	public static int calculateHandRank(ArrayList<Card> hand)
@@ -21,7 +21,7 @@ public class Util {
 		}
 		return rank;
 	}
-	
+
 	//check if hand has an ace
 	public static boolean hasAce(ArrayList<Card> hand)
 	{
@@ -31,7 +31,7 @@ public class Util {
 		}
 		return false;
 	}
-	
+
 	//load image and return image object
 	public static BufferedImage loadImage(final String path)
 	{		
@@ -45,11 +45,22 @@ public class Util {
 		}		
 		return img;
 	}
-	
+
 	//check if the string contains only numbers
 	public static boolean isNumeric(String str)
 	{
 		if(str.matches("[0-9]+")) return true;
 		return false;
+	}
+
+	//sleep milliseconds
+	//used to simulate cool down for deal button because ActionListener can't handle release event
+	public static void delay(long millis)
+	{
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) { 
+			e.printStackTrace();
+		}
 	}
 }
