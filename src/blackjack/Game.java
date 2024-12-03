@@ -287,7 +287,11 @@ public class Game{
 			{
 				bid *= 2;	//double bid
 				UI.updateHUD(balance, bid);
-				UI.setActionBarState(UserInterface.STATE_INSURANCE_OR_SURRENDER);				
+				UI.setActionBarState(UserInterface.STATE_INSURANCE_OR_SURRENDER);
+				if(purchasedInsurance)	//disable the insurance button after once
+				{
+					UI.setInsuranceState(false);
+				}
 			}
 
 			playerHasDrawn = true;			
@@ -360,6 +364,13 @@ public class Game{
 	{
 		bid *= 2;
 		UI.updateHUD(balance, bid);
+
+		purchasedInsurance = true;
+
+		if(purchasedInsurance)	//disable the insurance button after once
+		{
+			UI.setInsuranceState(false);
+		}
 	}
 
 	//when the surrender button is clicked

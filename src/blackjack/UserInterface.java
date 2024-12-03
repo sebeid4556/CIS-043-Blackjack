@@ -154,6 +154,12 @@ public class UserInterface extends JFrame implements ActionListener{
 	{
 		HUD.cmbMode.setEnabled(flag);
 	}
+	
+	//enable or disable the insurance button
+	public void setInsuranceState(boolean flag)
+	{
+		action_bar.button_insurance.setEnabled(flag);
+	}
 
 	//return the amount entered into text field
 	public int getBidAmount()
@@ -216,10 +222,9 @@ public class UserInterface extends JFrame implements ActionListener{
 				break;
 			case STATE_DEAL_AGAIN:
 				action_bar.button_deal.setEnabled(true);
-				setInsuranceAndSurrenderState(false);				
+				setInsuranceAndSurrenderState(true);				
 				setPlayState(false);
 				action_bar.button_restart.setEnabled(false);
-				action_bar.button_ready.setEnabled(true);	//enable the ready button for deal again
 				break;
 			case STATE_RESULT:
 				action_bar.button_deal.setEnabled(false);
