@@ -99,6 +99,34 @@ public class Game{
 		UI.updateGameState(GAME_STATE_ONGOING);
 	}
 
+	//change the current game mode and alter the values of face cards
+	private void changeGameMode(int gameMode)
+	{
+		try
+		{
+			this.gameMode = gameMode;
+			if(this.gameMode == GAME_MODE_NORMAL)
+			{
+				Rank.Jack.changeNumericValue(10);
+				Rank.Queen.changeNumericValue(10);
+				Rank.King.changeNumericValue(10);
+			}
+			else if(this.gameMode == GAME_MODE_SPECIAL)
+			{
+				Rank.Jack.changeNumericValue(11);
+				Rank.Queen.changeNumericValue(12);
+				Rank.King.changeNumericValue(13);
+			}
+			else
+			{
+				throw new IllegalArgumentException();
+			}
+		}catch(Exception e)
+		{
+			System.out.println("Invalid game mode");
+		}
+	}
+
 	//make the player draw a card
 	private void playerDrawCard()
 	{
@@ -108,7 +136,6 @@ public class Game{
 		{
 			playerHasAce = true;
 		}
-		//playerRank += playerCard.getRank().getNumericValue();	//increment player rank
 		playerRank = Util.calculateHandRank(playerCards);
 	}
 
@@ -131,6 +158,8 @@ public class Game{
 			}
 			tableRank += tableCard.getRank().getNumericValue();
 			tableRankFinal += tableCard.getRank().getNumericValue();
+
+			//EDIT THE CODE ABOVE TO ACCOUNT FOR SPECIAL MODE
 		}
 
 		UI.updateTableHand(tableCards);	//update the screen
@@ -220,7 +249,7 @@ public class Game{
 	//when the deal button is clicked
 	public void onDeal()
 	{
-		gameMode = UI.getGameMode();
+		changeGameMode(UI.getGameMode());
 
 		if(!playerHasDrawn)	//only do this the first time
 		{
