@@ -71,8 +71,8 @@ public class Table extends JPanel{
 
 	private int gameState;	//set by UserInterface, set by Game
 
-	private final String tableName = "DEALER";
-	private String playerName = "YOU";
+	private String tableName = "";
+	private String playerName = "";
 
 	public Table()
 	{
@@ -97,6 +97,12 @@ public class Table extends JPanel{
 	private void configure()
 	{
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
+	}
+	
+	public void setNames(String playerName, String dealerName)
+	{
+		this.playerName = playerName;
+		this.tableName = dealerName;
 	}
 
 	//update the cards shown on screen for the table

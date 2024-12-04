@@ -47,12 +47,8 @@ public class Game{
 	private int bid; // current bid
 	private boolean purchasedInsurance; // did player earned insurance?
 
-	private int tableRank; // table's total rank
-	private int playerRank; // player's total rank
-	private boolean tableHasAce; // does the table have an ace
-	private boolean playerHasAce; // does the player have an ace
-
-	private boolean playerHasDrawn;	//for special mode: has the player drawn two cards
+	private Player player = new Player("YOU");
+	private Dealer table = new Dealer("DEALER");
 
 	private int gameMode;
 
@@ -68,6 +64,8 @@ public class Game{
 
 		balance = INITIAL_BALANCE;
 
+		UI.setNames(player.name, table.name);
+
 		//start new round
 		reset();		
 	}
@@ -77,17 +75,17 @@ public class Game{
 	{			
 		// game has not started -> no insurance, no ace dealt, ranks are 0
 		purchasedInsurance = false;
-		tableHasAce = playerHasAce = false;
-		playerRank = tableRank = 0;
-		playerHasDrawn = false;
+
+		player.setHasAce(false);
+		table.setHasAce(false);
+		player.setHasDrawn(false);
 
 		bid = INITIAL_BID;	//set back to default every round
 
-		// return player and table's card return deck
-		returnCardDeck.addCards(playerCards);
-		returnCardDeck.addCards(tableCards);
-		playerCards.clear();
-		tableCards.clear();
+		returnCardDeck.addCards(player.cards);
+		returnCardDeck.addCards(table.cards);
+		player.cards.clear();
+		table.cards.clear();
 		servingCardDeck.moveCards(returnCardDeck);	//move returned cards back to serving deck and shuffle
 
 		UI.setModeComboBoxState(true);	//enable drop down
@@ -130,13 +128,12 @@ public class Game{
 	//make the player draw a card
 	private void playerDrawCard()
 	{
-		final Card playerCard = servingCardDeck.take();
-		playerCards.add(playerCard);	//player is dealt a card from the serving deck
+		final Card playerCard = servingCardDeck.take();	//player is dealt a card from the serving deck
+		player.cards.add(playerCard);
 		if (playerCard.getRank().equals(Rank.Ace))	//if the card is an ace set flag 
 		{
-			playerHasAce = true;
+			player.setHasAce(true);
 		}
-		playerRank = Util.calculateHandRank(playerCards);
 	}
 
 	// logic to handle table's turn
@@ -145,40 +142,21 @@ public class Game{
 		// otherwise stays
 		// for this assume ace is 11
 		// finally, a winner/loser is decided and game ends
-		int tableRankFinal = tableRank + (tableHasAce ? 10 : 0);
+		int tableRankFinal = table.getRank() + (table.getHasAce() ? 10 : 0);
 
 		for (int i = 2  ; i < MAX_CARDS && tableRankFinal <= 16; i++)	//keep drawing until max cards or over 16 
 		{
 			final Card tableCard = servingCardDeck.take();     //draw a card       
-			tableCards.add(tableCard);
+			table.cards.add(tableCard);
 
-			if (!tableHasAce && tableCard.getRank().equals(Rank.Ace)) {
-				tableHasAce = true;
+			if (!table.getHasAce() && tableCard.getRank().equals(Rank.Ace)) {
+				table.setHasAce(true);
 				tableRankFinal += 10;
-			}
-			tableRank += tableCard.getRank().getNumericValue();
+			}			
 			tableRankFinal += tableCard.getRank().getNumericValue();
-
-			//EDIT THE CODE ABOVE TO ACCOUNT FOR SPECIAL MODE
 		}
 
-		UI.updateTableHand(tableCards);	//update the screen
-	}
-
-	private int computePlayerScore() {
-		if (playerHasAce) {
-			return (playerRank + 10) > 21 ? playerRank : playerRank + 10;
-		} else {
-			return playerRank;
-		}
-	}
-
-	private int computeTableScore() {
-		if (tableHasAce) {
-			return  (tableRank + 10) > 21 ? tableRank : tableRank + 10;
-		} else {
-			return tableRank;
-		}
+		UI.updateTableHand(table.cards);	//update the screen
 	}
 
 	private void blackjack()
@@ -193,8 +171,8 @@ public class Game{
 
 	//determines winner or loser
 	private void determineWinner() {
-		final int playerScore = computePlayerScore();
-		final int tableScore = computeTableScore();        
+		final int playerScore = player.computeScore();
+		final int tableScore = table.computeScore();
 
 		if (playerScore > 21) {
 			// if player score is > 21, doesn't matter what is the
@@ -251,7 +229,8 @@ public class Game{
 	{
 		changeGameMode(UI.getGameMode());
 
-		if(!playerHasDrawn)	//only do this the first time
+		//only do this the first time
+		if(!player.getHasDrawn())
 		{
 			if(!UI.validateBidAmount(balance)) return;
 			bid = UI.getBidAmount();
@@ -266,19 +245,20 @@ public class Game{
 			final Card tableCard = servingCardDeck.take();
 			if(tableCard.getRank().equals(Rank.Ace))
 			{
-				tableHasAce = true;
+				table.setHasAce(true);
 			}
-			tableCards.add(tableCard);
-			tableRank = Util.calculateHandRank(tableCards);
-			UI.updateTableHand(tableCards);
+			table.cards.add(tableCard);
+			UI.updateTableHand(table.cards);
 		}	
 
 		if(gameMode == GAME_MODE_SPECIAL)	//only draw one card at a time if game mode is SPECIAL
 		{
 			playerDrawCard();
-			UI.updatePlayerHand(playerCards);
+			//UI.updatePlayerHand(playerCards);
+			UI.updatePlayerHand(player.cards);
 
-			if(!playerHasDrawn)	//if this is the first time
+			//if(!playerHasDrawn)	//if this is the first time
+			if(!player.getHasDrawn())
 			{
 				UI.setActionBarState(UserInterface.STATE_DEAL_AGAIN);	//click deal one more time to draw another card				
 				Util.delay(250);				
@@ -294,7 +274,8 @@ public class Game{
 				}
 			}
 
-			playerHasDrawn = true;			
+			//playerHasDrawn = true;
+			player.setHasDrawn(true);
 
 		}
 		else	//NORMAL MODE
@@ -304,11 +285,12 @@ public class Game{
 			{
 				playerDrawCard();
 			}		
-			UI.updatePlayerHand(playerCards);
+			//UI.updatePlayerHand(playerCards);
+			UI.updatePlayerHand(player.cards);
 		}
 
 		//check score for blackjack
-		if(playerRank == 21 || (playerRank == 11 && playerHasAce))
+		if(player.getRank() == 21 || (player.getRank() == 11 && player.getHasAce()))
 		{
 			blackjack();
 		}
@@ -322,17 +304,17 @@ public class Game{
 		playerDrawCard();
 
 		//draw the new rank and disable the double button
-		UI.updatePlayerHand(playerCards);
+		UI.updatePlayerHand(player.cards);
 		UI.setDoubleState(false);
 
 		// if player goes over 21, then it's a bust
-		if (playerRank > 21) 
+		if(player.getRank() > 21)
 		{
 			UI.setActionBarState(UserInterface.STATE_RESULT);
 
 			determineWinner();
 		}           
-		else if(playerRank == 21 || (playerRank == 11 && playerHasAce))
+		else if(player.getRank() == 21 || (player.getRank() == 11 && player.getHasAce()))
 		{
 			blackjack();
 		}
@@ -345,7 +327,8 @@ public class Game{
 		UI.updateHUD(balance, bid);
 
 		playerDrawCard();
-		UI.updatePlayerHand(playerCards);
+		//UI.updatePlayerHand(playerCards);
+		UI.updatePlayerHand(player.cards);
 
 		tableTurn();
 

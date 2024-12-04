@@ -80,6 +80,11 @@ public class UserInterface extends JFrame implements ActionListener{
 		setVisible(true);
 	}
 
+	public void setNames(String playerName, String dealerName)
+	{
+		table.setNames(playerName, dealerName);
+	}
+	
 	//update the cards shown on the screen for the Table
 	public void updateTableHand(ArrayList<Card> hand)
 	{
