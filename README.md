@@ -1,5 +1,5 @@
 # CIS-043-Blackjack
-A game of Blackjack with a TWIST!
+A game of Blackjack with a TWIST!<br/>
 Team project for CIS-043
 Written in Java using swing
 
