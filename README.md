@@ -12,7 +12,7 @@ SPECIAL mode: The player starts with one card. Instead of drawing two cards at t
 # Documentation
 A doc explaining the design process with diagrams can be found [here](https://github.com/sebeid4556/CIS-043-Blackjack/blob/1045bb5d28c9763e2aaf9019ed4d7b0b90cbc3a3/Documentation%20-%20Blackjack%20Team%20Project.pdf).
 
-Screenshots:
+# Screenshots
 ![alt text](https://github.com/sebeid4556/CIS-043-Blackjack/blob/master/screenshots/play1.png?raw=true)
 ![alt text](https://github.com/sebeid4556/CIS-043-Blackjack/blob/master/screenshots/youwin.png?raw=true)
 ![alt text](https://github.com/sebeid4556/CIS-043-Blackjack/blob/master/screenshots/play2.png?raw=true)
